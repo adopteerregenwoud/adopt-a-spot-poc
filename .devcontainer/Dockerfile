@@ -20,5 +20,8 @@ RUN groupadd --gid $USER_GID $USERNAME && \
 # Set the default user
 USER $USERNAME
 
+# Make sure https works (with a self-signed certificate):
+RUN dotnet dev-certs https --trust
+
 # Set the work directory
 WORKDIR /workspace
