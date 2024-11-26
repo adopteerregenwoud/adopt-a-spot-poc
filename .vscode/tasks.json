@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build-backend",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -12,6 +12,29 @@
                 "/consoleloggerparameters:NoSummary;ForceNoAlign"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-frontend",
+            "command": "npm",
+            "type": "shell",
+            "args": [
+                "run",
+                "build"
+            ],
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}/frontend"
+            }
+        },
+        {
+            // Custom default build task that will build both the C# backend and the TypeScript backend.
+            "label": "build",
+            "dependsOn": ["build-backend", "build-frontend"],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         },
         {
             "label": "publish",
