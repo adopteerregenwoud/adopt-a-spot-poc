@@ -15,10 +15,10 @@
         },
         {
             "label": "build-frontend",
-            "command": "npm",
+            "command": "npx",
             "type": "shell",
             "args": [
-                "run",
+                "vite",
                 "build"
             ],
             "problemMatcher": [],

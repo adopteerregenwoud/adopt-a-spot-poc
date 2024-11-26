@@ -19,7 +19,7 @@ export class PanZoomCanvas extends LitElement {
     }
   `;
 
-  @property({ type: String }) imageSrc: string = 'Los_Porros.png';
+  @property({ type: String }) imageSrc: string = '/Los_Porros.png';
 
   @state() private scale: number = 1;
   @state() private offsetX: number = 0;
