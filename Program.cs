@@ -20,6 +20,16 @@ internal class Program
 
         app.UseHttpsRedirection();
 
+        var staticContentRootPath = Path.Combine(builder.Environment.ContentRootPath, "frontend", "dist");
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(staticContentRootPath)
+        });
+        app.MapFallbackToFile("index.html", new StaticFileOptions
+        {
+            FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(staticContentRootPath)
+        });
+
         var summaries = new[]
         {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
