@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
 @customElement('pan-zoom-canvas')
@@ -19,7 +19,7 @@ export class PanZoomCanvas extends LitElement {
     }
   `;
 
-  @property({ type: String }) imageSrc: string = 'path/to/your/large-image.png'; // Replace with your image path
+  @property({ type: String }) imageSrc: string = 'Los_Porros.png';
 
   @state() private scale: number = 1;
   @state() private offsetX: number = 0;
