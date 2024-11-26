@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "ES2020",                                  /* Set to ES2020 to support modern JavaScript features. */
+    "module": "ES2020",                                  /* Use ES2020 modules for compatibility with Lit. */
+    "moduleResolution": "node",                         /* Ensure TypeScript resolves modules like Node.js. */
+    "strict": true,                                      /* Enable strict type-checking options. */
+    "esModuleInterop": true,                             /* Ensure compatibility with CommonJS and ES modules. */
+    "skipLibCheck": true,                                /* Skip checking type declaration files in node_modules. */
+    "experimentalDecorators": true,                     /* Enable support for decorators. */
+    "emitDecoratorMetadata": false,                     /* Prevent unnecessary metadata emission. */
+
+    /* Emit */
+    "outDir": "./dist",                                  /* Specify an output folder for compiled JavaScript files. */
+    "sourceMap": true,                                   /* Generate source maps for debugging. */
+
+    /* Type Checking */
+    "forceConsistentCasingInFileNames": true             /* Ensure imports use consistent casing. */
+  },
+  "include": ["**/*.ts"],                                /* Include all TypeScript files in the project. */
+  "exclude": ["node_modules", "dist"]                    /* Exclude unnecessary directories. */
+}
