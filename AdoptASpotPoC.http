@@ -1,0 +1,6 @@
+@AdoptASpotPoC_HostAddress = http://localhost:5234
+
+GET {{AdoptASpotPoC_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

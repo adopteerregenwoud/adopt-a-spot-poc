@@ -1,0 +1,25 @@
+{
+    "name": "ASP.NET + Lit DevContainer",
+    "image": "mcr.microsoft.com/dotnet/sdk:8.0",
+    "features": {
+      "ghcr.io/devcontainers/features/node:1": {
+        "version": "18"
+      }
+    },
+    "postCreateCommand": "dotnet restore && mkdir -p frontend && cd frontend && npm init -y && npm install",
+    "customizations": {
+      "vscode": {
+        "settings": {
+          "terminal.integrated.defaultProfile.linux": "bash"
+        },
+        "extensions": [
+          "ms-dotnettools.csharp",
+          "dbaeumer.vscode-eslint",
+          "esbenp.prettier-vscode",
+          "runem.lit-plugin"
+        ]
+      }
+    },
+    "forwardPorts": [5000, 5001]
+  }
+  
