@@ -28,7 +28,7 @@ COPY --from=build /app/frontend/dist ./frontend/dist
 # Set environment variables
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 
-EXPOSE 8080
+EXPOSE 5000
 
 # Run the application
 ENTRYPOINT ["dotnet", "AdoptASpotPoC.dll"]
