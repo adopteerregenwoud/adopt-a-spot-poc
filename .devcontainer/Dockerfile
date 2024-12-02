@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y --no-install-recommends nodejs && \
+    apt-get install -y --no-install-recommends nodejs less && \
     dotnet workload update && \
     apt-get autoremove -y && \
     apt-get clean && \
@@ -15,7 +15,8 @@ ARG USER_GID=1000
 RUN groupadd --gid $USER_GID $USERNAME && \
     useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME && \
     mkdir -p /home/$USERNAME/.npm && \
-    chown -R $USERNAME:$USERNAME /home/$USERNAME
+    chown -R $USERNAME:$USERNAME /home/$USERNAME/.npm && \
+    echo "alias ll='ls -alF'" >> /home/$USERNAME/.bashrc
 
 USER $USERNAME
 
