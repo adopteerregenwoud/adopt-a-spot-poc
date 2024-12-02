@@ -4,6 +4,10 @@ export class TransformManager {
     private scale: number = 1;
     private offset: Point = new Point(0, 0);
     private readonly minScale: number;
+    private readonly canvasWidth: number;
+    private readonly canvasHeight: number;
+    private readonly imageWidth: number;
+    private readonly imageHeight: number;
 
     constructor(
         canvasWidth: number,
@@ -11,9 +15,16 @@ export class TransformManager {
         imageWidth: number,
         imageHeight: number
     ) {
+        this.canvasWidth = canvasWidth;
+        this.canvasHeight = canvasHeight;
+
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+
+        // Calculate the minimum scale to ensure the image always fully covers the canvas
         const scaleX = canvasWidth / imageWidth;
         const scaleY = canvasHeight / imageHeight;
-        this.minScale = Math.min(scaleX, scaleY);
+        this.minScale = Math.max(scaleX, scaleY);
 
         this.scale = this.minScale;
         this.offset = new Point(
@@ -35,9 +46,8 @@ export class TransformManager {
         const scaleChange = zoomDelta < 0 ? zoomFactor : 1 / zoomFactor;
         const newScale = this.scale * scaleChange;
 
-        // Prevent zooming out beyond the minimum scale
         if (newScale < this.minScale && zoomDelta > 0) {
-            return;
+            return; // Prevent zooming out beyond the minimum scale
         }
 
         const effectiveScale = Math.max(newScale, this.minScale);

@@ -2,20 +2,25 @@ import { Point } from "../Point";
 import { TransformManager } from "../TransformManager";
 
 describe("TransformManager", () => {
+    const canvasWidth: number = 800;
+    const canvasHeight: number = 600;
+    const imageWidth: number = 1000;
+    const imageHeight: number = 500;
     let manager: TransformManager;
 
     beforeEach(() => {
-        manager = new TransformManager(800, 600, 1000, 500); // Canvas: 800x600, Image: 1000x500
+        manager = new TransformManager(canvasWidth, canvasHeight, imageWidth, imageHeight);
     });
 
     test("initializes with correct scale and offset", () => {
         const scale = manager.getScale();
         const offset = manager.getOffset();
 
-        const expectedScale = Math.min(800 / 1000, 600 / 500); // Fit image within canvas
+        // We expect the image to cover the canvas:
+        const expectedScale = Math.max(canvasWidth / imageWidth, canvasHeight / imageHeight);
         const expectedOffset = new Point(
-            (800 - 1000 * expectedScale) / 2,
-            (600 - 500 * expectedScale) / 2
+            (canvasWidth - imageWidth * expectedScale) / 2,
+            (canvasHeight - imageHeight * expectedScale) / 2
         );
 
         expect(scale).toBeCloseTo(expectedScale);
@@ -97,5 +102,24 @@ describe("TransformManager", () => {
 
         // Assert the scale increases
         expect(newScale).toBeGreaterThan(initialScale);
+    });
+
+    test("zooming out does not allow the image to uncover canvas pixels", () => {
+        const mousePoint = new Point(400, 300); // Mouse at canvas center
+
+        // Perform zoom out beyond limits
+        for (let i = 0; i < 10; i++) {
+            manager.zoom(100, mousePoint); // Zoom out
+        }
+
+        const finalScale = manager.getScale();
+
+        // Minimum scale ensures every canvas pixel is covered by the image
+        const minScale = Math.max(
+            canvasWidth / imageWidth,
+            canvasHeight / imageHeight
+        );
+
+        expect(finalScale).toBeCloseTo(minScale);
     });
 });
