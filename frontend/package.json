@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && cp static/* dist/",
+    "build": "tsc",
     "test": "jest"
   },
   "keywords": [],
