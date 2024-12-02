@@ -9,7 +9,12 @@ describe("TransformManager", () => {
     let manager: TransformManager;
 
     beforeEach(() => {
-        manager = new TransformManager(canvasWidth, canvasHeight, imageWidth, imageHeight);
+        manager = new TransformManager(
+            canvasWidth,
+            canvasHeight,
+            imageWidth,
+            imageHeight
+        );
     });
 
     test("initializes with correct scale and offset", () => {
@@ -17,15 +22,14 @@ describe("TransformManager", () => {
         const offset = manager.getOffset();
 
         // We expect the image to cover the canvas:
-        const expectedScale = Math.max(canvasWidth / imageWidth, canvasHeight / imageHeight);
-        const expectedOffset = new Point(
-            (canvasWidth - imageWidth * expectedScale) / 2,
-            (canvasHeight - imageHeight * expectedScale) / 2
+        const expectedScale = Math.max(
+            canvasWidth / imageWidth,
+            canvasHeight / imageHeight
         );
 
         expect(scale).toBeCloseTo(expectedScale);
-        expect(offset.x).toBeCloseTo(expectedOffset.x);
-        expect(offset.y).toBeCloseTo(expectedOffset.y);
+        expect(offset.x).toBeCloseTo(0);
+        expect(offset.y).toBeCloseTo(0);
     });
 
     test("zooms in and updates scale and offset correctly", () => {

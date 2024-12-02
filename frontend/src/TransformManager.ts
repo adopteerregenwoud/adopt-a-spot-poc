@@ -27,10 +27,7 @@ export class TransformManager {
         this.minScale = Math.max(scaleX, scaleY);
 
         this.scale = this.minScale;
-        this.offset = new Point(
-            (canvasWidth - imageWidth * this.scale) / 2,
-            (canvasHeight - imageHeight * this.scale) / 2
-        );
+        this.offset = new Point(0, 0);
     }
 
     public getScale(): number {
