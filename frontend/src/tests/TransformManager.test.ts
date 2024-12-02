@@ -1,5 +1,5 @@
-import { TransformManager } from "../TransformManager";
 import { Point } from "../Point";
+import { TransformManager } from "../TransformManager";
 
 describe("TransformManager", () => {
     let manager: TransformManager;
@@ -48,26 +48,26 @@ describe("TransformManager", () => {
         expect(newOffset).toEqual(manager.getOffset()); // Offset remains unchanged
     });
 
-    // test("pans correctly", () => {
-    //     const initialOffset = manager.getOffset();
-    //     const panDelta = new Point(50, -25);
+    test("pans correctly", () => {
+        const initialOffset = manager.getOffset();
+        const panDelta = new Point(50, -25);
 
-    //     manager.pan(panDelta);
-    //     const newOffset = manager.getOffset();
+        manager.pan(panDelta);
+        const newOffset = manager.getOffset();
 
-    //     expect(newOffset.x).toBeCloseTo(initialOffset.x + panDelta.x);
-    //     expect(newOffset.y).toBeCloseTo(initialOffset.y + panDelta.y);
-    // });
+        expect(newOffset.x).toBeCloseTo(initialOffset.x + panDelta.x);
+        expect(newOffset.y).toBeCloseTo(initialOffset.y + panDelta.y);
+    });
 
-    // test("zoom and pan combined behavior", () => {
-    //     const mousePoint = new Point(400, 300);
-    //     manager.zoom(-100, mousePoint); // Zoom in
-    //     const afterZoomOffset = manager.getOffset();
+    test("zoom and pan combined behavior", () => {
+        const mousePoint = new Point(400, 300);
+        manager.zoom(-100, mousePoint); // Zoom in
+        const afterZoomOffset = manager.getOffset();
 
-    //     manager.pan(new Point(30, 20)); // Pan
-    //     const finalOffset = manager.getOffset();
+        manager.pan(new Point(30, 20)); // Pan
+        const finalOffset = manager.getOffset();
 
-    //     expect(finalOffset.x).toBeGreaterThan(afterZoomOffset.x);
-    //     expect(finalOffset.y).toBeGreaterThan(afterZoomOffset.y);
-    // });
+        expect(finalOffset.x).toBeGreaterThan(afterZoomOffset.x);
+        expect(finalOffset.y).toBeGreaterThan(afterZoomOffset.y);
+    });
 });
