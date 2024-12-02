@@ -58,12 +58,17 @@ describe("TransformManager", () => {
     });
 
     test("pans correctly", () => {
+        // Arrange
+        const mousePoint = new Point(400, 300);
+        manager.zoom(-100, mousePoint);
         const initialOffset = manager.getOffset();
-        const panDelta = new Point(50, -25);
+        const panDelta = new Point(5, 10);
 
+        // Act
         manager.pan(panDelta);
-        const newOffset = manager.getOffset();
 
+        // Assert
+        const newOffset = manager.getOffset();
         expect(newOffset.x).toBeCloseTo(initialOffset.x + panDelta.x);
         expect(newOffset.y).toBeCloseTo(initialOffset.y + panDelta.y);
     });
@@ -125,5 +130,71 @@ describe("TransformManager", () => {
         );
 
         expect(finalScale).toBeCloseTo(minScale);
+    });
+
+    test("panning is constrained to prevent empty pixels on the canvas", () => {
+        // Scale down to allow for potential panning
+        manager.zoom(100, new Point(400, 300)); // Zoom out
+
+        const scaledWidth = imageWidth * manager.getScale();
+        const scaledHeight = imageHeight * manager.getScale();
+
+        // Expected limits
+        const minOffsetX = Math.min(0, canvasWidth - scaledWidth);
+        const minOffsetY = Math.min(0, canvasHeight - scaledHeight);
+
+        // Attempt to pan beyond the limits
+        manager.pan(new Point(-1000, -1000)); // Far beyond the image boundaries
+        let offset = manager.getOffset();
+
+        // Assert that offsets are clamped
+        expect(offset.x).toBeGreaterThanOrEqual(minOffsetX);
+        expect(offset.y).toBeGreaterThanOrEqual(minOffsetY);
+
+        // Attempt to pan within limits
+        manager.pan(new Point(500, 500)); // Pan back into the image area
+        offset = manager.getOffset();
+
+        const maxOffsetX = 0;
+        const maxOffsetY = 0;
+
+        expect(offset.x).toBeLessThanOrEqual(maxOffsetX);
+        expect(offset.y).toBeLessThanOrEqual(maxOffsetY);
+    });
+
+    test("zooming in and then zooming out prevents empty pixels on the canvas", () => {
+        // Arrange
+        const topLeft = new Point(0, 0);
+        const bottomRight = new Point(canvasWidth, canvasHeight);
+
+        // Zoom in
+        manager.zoom(-100, topLeft);
+
+        // Act
+        manager.zoom(100, bottomRight);
+
+        // Assert
+        const finalScale = manager.getScale();
+
+        const expectedMinScale = Math.max(
+            canvasWidth / imageWidth,
+            canvasHeight / imageHeight
+        );
+        expect(finalScale).toBeCloseTo(expectedMinScale);
+
+        const scaledWidth = imageWidth * finalScale;
+        const scaledHeight = imageHeight * finalScale;
+        const finalOffset = manager.getOffset();
+        const expectedMinOffsetX = Math.min(0, canvasWidth - scaledWidth);
+        const expectedMinOffsetY = Math.min(0, canvasHeight - scaledHeight);
+
+        const expectedMaxOffsetX = 0;
+        const expectedMaxOffsetY = 0;
+
+        expect(finalOffset.x).toBeGreaterThanOrEqual(expectedMinOffsetX);
+        expect(finalOffset.y).toBeGreaterThanOrEqual(expectedMinOffsetY);
+
+        expect(finalOffset.x).toBeLessThanOrEqual(expectedMaxOffsetX);
+        expect(finalOffset.y).toBeLessThanOrEqual(expectedMaxOffsetY);
     });
 });

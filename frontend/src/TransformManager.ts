@@ -43,11 +43,17 @@ export class TransformManager {
         const scaleChange = zoomDelta < 0 ? zoomFactor : 1 / zoomFactor;
         const newScale = this.scale * scaleChange;
 
-        if (newScale < this.minScale && zoomDelta > 0) {
+        // Enforce minimum scale to fully cover the canvas
+        const minScale = Math.max(
+            this.canvasWidth / this.imageWidth,
+            this.canvasHeight / this.imageHeight
+        );
+
+        if (newScale < minScale && zoomDelta > 0) {
             return; // Prevent zooming out beyond the minimum scale
         }
 
-        const effectiveScale = Math.max(newScale, this.minScale);
+        const effectiveScale = Math.max(newScale, minScale);
 
         // Adjust offsets to zoom relative to the mouse position
         const relativeMouse = mouse.subtract(this.offset);
@@ -56,9 +62,33 @@ export class TransformManager {
         );
 
         this.scale = effectiveScale;
+
+        // Constrain offsets to prevent empty pixels
+        this.constrainOffsets();
     }
 
     public pan(delta: Point) {
         this.offset = this.offset.translate(delta);
+
+        // Constrain offsets to prevent empty pixels
+        this.constrainOffsets();
+    }
+
+    private constrainOffsets() {
+        const scaledWidth = this.imageWidth * this.scale;
+        const scaledHeight = this.imageHeight * this.scale;
+
+        // Calculate the pan limits
+        const maxOffsetX = 0; // Top-left corner aligns with canvas edge
+        const maxOffsetY = 0;
+
+        const minOffsetX = Math.min(0, this.canvasWidth - scaledWidth); // Bottom-right edge aligns
+        const minOffsetY = Math.min(0, this.canvasHeight - scaledHeight);
+
+        // Constrain offsets
+        this.offset = new Point(
+            Math.min(maxOffsetX, Math.max(minOffsetX, this.offset.x)),
+            Math.min(maxOffsetY, Math.max(minOffsetY, this.offset.y))
+        );
     }
 }
