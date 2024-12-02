@@ -35,6 +35,7 @@ export class TransformManager {
         const scaleChange = zoomDelta < 0 ? zoomFactor : 1 / zoomFactor;
         const newScale = this.scale * scaleChange;
 
+        // Prevent zooming out beyond the minimum scale
         if (newScale < this.minScale && zoomDelta > 0) {
             return;
         }
@@ -42,8 +43,8 @@ export class TransformManager {
         const effectiveScale = Math.max(newScale, this.minScale);
 
         // Adjust offsets to zoom relative to the mouse position
-        const relativeMouse = mouse.translate(this.offset);
-        this.offset = this.offset.translate(
+        const relativeMouse = mouse.subtract(this.offset);
+        this.offset = this.offset.subtract(
             relativeMouse.scale(effectiveScale / this.scale - 1)
         );
 

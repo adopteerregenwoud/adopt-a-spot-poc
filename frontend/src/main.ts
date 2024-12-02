@@ -1,142 +1,118 @@
-import { LitElement, css, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { LitElement, css, html } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { TransformManager } from "./TransformManager";
+import { Point } from "./Point";
 
-@customElement('pan-zoom-canvas')
+@customElement("pan-zoom-canvas")
 export class PanZoomCanvas extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-      width: 100%;
-      max-width: 800px; /* Adjust canvas container max width */
-      margin: 0 auto;
-      border: 1px solid #ccc;
-    }
-    canvas {
-      display: block;
-      width: 100%; /* Make canvas responsive */
-    }
-  `;
+    static styles = css`
+        :host {
+            display: block;
+            width: 100%;
+            max-width: 800px; /* Adjust canvas container max width */
+            margin: 0 auto;
+            border: 1px solid #ccc;
+        }
+        canvas {
+            display: block;
+            width: 100%; /* Make canvas responsive */
+        }
+    `;
 
-  @property({ type: String }) imageSrc: string = '/Los_Porros.png'; // Replace with your image path
+    @property({ type: String }) imageSrc: string = "/Los_Porros.png";
 
-  private canvas!: HTMLCanvasElement;
-  private ctx!: CanvasRenderingContext2D | null;
-  private image: HTMLImageElement = new Image();
-  private scale: number = 1;
-  private offsetX: number = 0;
-  private offsetY: number = 0;
+    private canvas!: HTMLCanvasElement;
+    private ctx!: CanvasRenderingContext2D | null;
+    private image: HTMLImageElement = new Image();
+    private transformManager!: TransformManager;
 
-  firstUpdated() {
-    this.canvas = this.shadowRoot!.querySelector('canvas')!;
-    this.ctx = this.canvas.getContext('2d');
+    private dragging = false;
+    private lastMousePos = new Point(0, 0);
 
-    this.image.src = this.imageSrc;
-    this.image.onload = () => {
-      this.setupCanvas();
-      this.draw();
-    };
+    firstUpdated() {
+        this.canvas = this.shadowRoot!.querySelector("canvas")!;
+        this.ctx = this.canvas.getContext("2d");
 
-    this.addEventListeners();
-  }
+        this.image.src = this.imageSrc;
+        this.image.onload = () => {
+            this.setupCanvas();
+            this.draw();
+        };
 
-  private setupCanvas() {
-    // Set canvas size
-    const containerWidth = this.offsetWidth;
-    const containerHeight = 600; // Adjust the fixed height
-    this.canvas.width = containerWidth;
-    this.canvas.height = containerHeight;
-
-    // Calculate initial scale to fit the image
-    const scaleX = this.canvas.width / this.image.width;
-    const scaleY = this.canvas.height / this.image.height;
-    this.scale = Math.min(scaleX, scaleY);
-
-    // Center the image
-    this.offsetX = (this.canvas.width - this.image.width * this.scale) / 2;
-    this.offsetY = (this.canvas.height - this.image.height * this.scale) / 2;
-  }
-
-  private addEventListeners() {
-    this.canvas.addEventListener('wheel', (e) => this.zoom(e));
-    this.canvas.addEventListener('mousedown', (e) => this.startDrag(e));
-    this.canvas.addEventListener('mousemove', (e) => this.drag(e));
-    this.canvas.addEventListener('mouseup', () => this.stopDrag());
-    this.canvas.addEventListener('mouseleave', () => this.stopDrag());
-  }
-
-  private zoom(e: WheelEvent) {
-    e.preventDefault();
-    const zoomFactor = 1.1;
-    const scaleChange = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
-
-    // Calculate the new scale
-    const newScale = this.scale * scaleChange;
-
-    // Prevent zooming out beyond the initial scale and exit early
-    const minScale = Math.min(this.canvas.width / this.image.width, this.canvas.height / this.image.height);
-    if (newScale < minScale) {
-      return;
+        this.addEventListeners();
     }
 
-    // Adjust scale
-    this.scale = newScale;
+    private setupCanvas() {
+        // Set canvas size
+        const containerWidth = this.offsetWidth;
+        const containerHeight = 600; // Adjust the fixed height
+        this.canvas.width = containerWidth;
+        this.canvas.height = containerHeight;
 
-    const mouseX = e.offsetX - this.offsetX;
-    const mouseY = e.offsetY - this.offsetY;
+        // Initialize TransformManager with canvas and image dimensions
+        this.transformManager = new TransformManager(
+            this.canvas.width,
+            this.canvas.height,
+            this.image.width,
+            this.image.height
+        );
+    }
 
-    // Adjust offset to zoom relative to the mouse position
-    this.offsetX -= mouseX * (scaleChange - 1);
-    this.offsetY -= mouseY * (scaleChange - 1);
+    private addEventListeners() {
+        this.canvas.addEventListener("wheel", (e) => this.zoom(e));
+        this.canvas.addEventListener("mousedown", (e) => this.startDrag(e));
+        this.canvas.addEventListener("mousemove", (e) => this.drag(e));
+        this.canvas.addEventListener("mouseup", () => this.stopDrag());
+        this.canvas.addEventListener("mouseleave", () => this.stopDrag());
+    }
 
-    this.draw();
-  }
+    private zoom(e: WheelEvent) {
+        e.preventDefault();
+        const mousePos = new Point(e.offsetX, e.offsetY);
+        this.transformManager.zoom(e.deltaY, mousePos);
+        this.draw();
+    }
 
-  private dragging = false;
-  private lastMouseX = 0;
-  private lastMouseY = 0;
-  
-  private startDrag(e: MouseEvent) {
-    this.dragging = true;
-    this.lastMouseX = e.offsetX;
-    this.lastMouseY = e.offsetY;
-  }
-  
-  private drag(e: MouseEvent) {
-    if (!this.dragging) return;
-  
-    const deltaX = e.offsetX - this.lastMouseX;
-    const deltaY = e.offsetY - this.lastMouseY;
-  
-    // Update offsets to allow panning
-    this.offsetX += deltaX;
-    this.offsetY += deltaY;
-  
-    this.lastMouseX = e.offsetX;
-    this.lastMouseY = e.offsetY;
-  
-    this.draw();
-  }
-  
-  private stopDrag() {
-    this.dragging = false;
-  }
-  
-  private draw() {
-    if (!this.ctx) return;
+    private startDrag(e: MouseEvent) {
+        this.dragging = true;
+        this.lastMousePos = new Point(e.offsetX, e.offsetY);
+    }
 
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.save();
+    private drag(e: MouseEvent) {
+        if (!this.dragging) return;
 
-    // Translate and scale for zoom/pan
-    this.ctx.translate(this.offsetX, this.offsetY);
-    this.ctx.scale(this.scale, this.scale);
+        const currentMousePos = new Point(e.offsetX, e.offsetY);
+        const delta = currentMousePos.subtract(this.lastMousePos);
 
-    // Draw the image
-    this.ctx.drawImage(this.image, 0, 0);
-    this.ctx.restore();
-  }
+        this.transformManager.pan(delta);
+        this.lastMousePos = currentMousePos;
 
-  render() {
-    return html`<canvas></canvas>`;
-  }
+        this.draw();
+    }
+
+    private stopDrag() {
+        this.dragging = false;
+    }
+
+    private draw() {
+        if (!this.ctx) return;
+
+        const offset = this.transformManager.getOffset();
+        const scale = this.transformManager.getScale();
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.save();
+
+        // Apply transformations
+        this.ctx.translate(offset.x, offset.y);
+        this.ctx.scale(scale, scale);
+
+        // Draw the image
+        this.ctx.drawImage(this.image, 0, 0);
+        this.ctx.restore();
+    }
+
+    render() {
+        return html`<canvas></canvas>`;
+    }
 }

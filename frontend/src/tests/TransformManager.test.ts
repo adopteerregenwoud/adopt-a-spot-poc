@@ -70,4 +70,32 @@ describe("TransformManager", () => {
         expect(finalOffset.x).toBeGreaterThan(afterZoomOffset.x);
         expect(finalOffset.y).toBeGreaterThan(afterZoomOffset.y);
     });
+
+    test("zooming in on an image centered on the canvas keeps the mouse point stationary", () => {
+        // Initial setup
+        const mousePoint = new Point(400, 300); // Mouse at canvas center
+        const initialOffset = manager.getOffset(); // Initial offset (image centered)
+        const initialScale = manager.getScale();
+
+        // Perform zoom in
+        manager.zoom(-100, mousePoint); // Zoom in (negative deltaY)
+
+        const newOffset = manager.getOffset();
+        const newScale = manager.getScale();
+
+        // Mouse point on the image in scaled coordinates before and after zoom
+        const mousePointBeforeZoom = mousePoint
+            .subtract(initialOffset)
+            .scale(1 / initialScale);
+        const mousePointAfterZoom = mousePoint
+            .subtract(newOffset)
+            .scale(1 / newScale);
+
+        // Assert the mouse point remains stationary on the image
+        expect(mousePointAfterZoom.x).toBeCloseTo(mousePointBeforeZoom.x);
+        expect(mousePointAfterZoom.y).toBeCloseTo(mousePointBeforeZoom.y);
+
+        // Assert the scale increases
+        expect(newScale).toBeGreaterThan(initialScale);
+    });
 });
