@@ -33,3 +33,10 @@ van een aantal vierkante meters.
 ### Deploy
 
 - Docker
+
+## TODO
+
+- lijnen tonen tussen vierkante meters
+- canvas schaalt niet in hoogte
+- maximale zoom
+- aangeven hoeveel m2 je kunt aanklikken
